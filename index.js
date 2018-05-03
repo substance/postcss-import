@@ -136,6 +136,13 @@ function parseStyles(result, styles, options, state, media) {
         return promise.then(() => {
           stmt.media = joinMedia(media, stmt.media || [])
 
+          // MONKEY-PATCH: skip @import statements with 'url(...)'
+          if (stmt.type === "import") {
+            if (/^url\(/.exec(stmt.fullUri)) {
+              return
+            }
+          }
+
           // skip protocol base uri (protocol://url) or protocol-relative
           if (stmt.type !== "import" || /^(?:[a-z]+:)?\/\//i.test(stmt.uri)) {
             return
